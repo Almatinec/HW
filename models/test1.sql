@@ -4,8 +4,21 @@
   )
 }}
 
-select 
-sum(a.spend)/sum(a.clicks) as CPC, 
-sum(a.spend)/sum(a.conv) as Conversion_cost, 
-sum(a.spend)/sum(a.clicks) as Cost_per_engage, 
-from {{ref("stg_src_ads_bing_all_data")}} a
+with cpc as
+(
+    select 
+    sum(a.imps)/sum(a.clicks) as VAL, 'CPC' as SCORE
+from {{ref("stg_src_ads_bing_all_data")}} a),
+cc as(
+    select
+    sum(b.spend)/sum(b.conv) as VAL, 'Conversion_cost' as SCORE
+    from {{ref("stg_src_ads_bing_all_data")}} b),
+cpe as( 
+    select
+    sum(c.spend)/sum(c.clicks) as VAL, 'CPE' as SCORE 
+    from {{ref("stg_src_ads_bing_all_data")}} c)
+select * from cpc
+union all 
+select * from cc
+union all 
+select * from cpe
